@@ -1,0 +1,40 @@
+#scoreBoard {
+    display: table;
+    margin: 0 auto;
+}
+ul {
+    list-style-type: none;
+    justify-content: center;
+    margin-top: 10px;
+    padding: 10px;
+    overflow: hidden;
+    background-color: #333333;
+  }
+  
+li {
+    float: left;
+    display: inline;
+  }
+  
+li div {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 25px;
+    text-decoration: none;
+    border: 2px solid white;
+  }
+body {
+    display: flex;                  
+}
+.ball { 
+    width: 10px;
+    height: 10px;
+    border-radius: 50%; /* Turns a square into a circle   */
+    background-color: #ff5722; /* Sets color to Orange           */
+    position: absolute;
+  }
+  img {
+      z-index: 5;
+  }
+

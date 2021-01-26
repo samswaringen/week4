@@ -1,0 +1,25 @@
+<script>
+function arrayFlattener(newArray){
+    const flatArray = [];
+    for(let i = 0; i < newArray.length; i++){
+      if (Array.isArray(newArray[i])){
+        let insideArray = newArray[i];
+        for(let i = 0; i < insideArray.length; i++){
+          flatArray.push(insideArray[i]);
+        }
+      } else{
+        flatArray.push(newArray[i]);
+      }
+    }
+     return flatArray;
+  }
+  //uncomment next line one by one, then check the console for results
+  console.log(arrayFlattener([1,[2,3],4,5]))
+  
+  //don't change this line
+  if (typeof module !== "undefined") {
+    module.exports = {
+      arrayFlattener,
+    };
+  }
+  </script>
