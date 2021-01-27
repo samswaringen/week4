@@ -34,6 +34,9 @@ body {
     background-color: #ff5722; /* Sets color to Orange           */
     position: absolute;
   }
+  .box {
+    position: absolute;
+  }
   img {
       z-index: 5;
   }

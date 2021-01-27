@@ -9,6 +9,13 @@ const upBalls = [];
 const downBalls = [];
 const colors = [];
 let size = 0;
+var ballPositions = [];
+let ghostX = pageWidth - 50;
+let ghostY = pageHeight - 50;
+var ghostVelX = getRandom(10);
+var ghostVelY = getRandom(10);
+var cirPosX = [];
+var cirPosY = [];
 
 //This array contains all the PacMan movement images
 const pacArray = [
@@ -32,6 +39,53 @@ var intervalDown;
 // This variable helps determine which PacMan image should be displayed. It flips between values 0 and 1
 var focus = 0;
 
+function checkWalls() {
+  if (ghostX < 0) {
+    ghostVelX = -ghostVelX;
+    ghostX = 0;
+  };
+  if (ghostX > pageWidth - 60) {
+    ghostVelX = -ghostVelX;
+    ghostX = pageWidth-60;
+  }
+  if (ghostY > pageHeight -60) {
+    ghostVelY = -ghostVelY;
+    ghostY = pageHeight -60;
+  } else if (ghostY < 0) {
+    ghostVelY = -ghostVelY;
+    ghostY = 0;
+  }
+}
+
+function ghostMove(){{
+  let ghost = document.getElementById('Ghost');
+  checkWalls();
+  ghostX += ghostVelX;
+  ghostY += ghostVelY;
+  ghost.style.left = ghostX + 'px';
+  ghost.style.top = ghostY + 'px';
+}
+  setTimeout(ghostMove, 100);
+}
+function makeGhost(ghostX, ghostY , ghostVelX, ghostVelY){
+  ghost = document.createElement('img');
+  ghost.className = 'Ghost';
+  ghost.src = `./images/Ghost.png`;
+  ghost.style.height = ghost.style.width = 50;
+
+  ghost.style.top = ghostX + ghostVelX;
+  ghost.style.left = ghostY + ghostVelY;
+  document.body.appendChild(ghost);
+}
+
+function getPoints(){
+  for(let i = 0; i < 100; i++){
+    let pointX = (((pageWidth-100)/100) * i) + 50;
+    let pointY = (((pageHeight-150)/100) * i) + 150;
+    cirPosX.push(pointX);
+    cirPosY.push(pointY);
+  }
+}
 // This function is called on mouse click. Every time it is called, it updates the PacMan image, position and direction on the screen.
 function RunRight() {
   let img = document.getElementById('PacMan');
@@ -39,12 +93,14 @@ function RunRight() {
   focus = (focus + 1) % 2;
   direction = checkPageBounds(direction, imgWidth, pos, pageWidth);
   img.src = pacArray[0][focus];
+  imgSrc = img.src;
   if (direction) {
     pos += 0;
     img.style.left = pos + 'px';
   } else {
     pos += 20;
     img.style.left = pos + 'px';
+    makeBox(pos - (imgWidth/2) , posY + 3, imgWidth);
   }
 }
 function RunLeft() {
@@ -53,12 +109,14 @@ function RunLeft() {
   focus = (focus + 1) % 2;
   direction = checkPageBoundsL(direction, imgWidth, pos, pageWidth);
   img.src = pacArray[1][focus];
+  imgSrc = img.src;
   if (direction) {
     pos += 0;
     img.style.left = pos + 'px';
   } else {
     pos -= 20;
     img.style.left = pos + 'px';
+    makeBox(pos + (imgWidth/2), posY + 3, imgWidth);
   }
 }
 
@@ -68,12 +126,14 @@ function JumpUp() {
   focus = (focus + 1) % 2;
   directionY = checkPageBoundsY(directionY, imgWidth, posY, pageHeight);
   img.src = pacArray[2][focus];
+  imgSrc = img.src;
   if (directionY) {
     posY += 0;
     img.style.top = posY + 'px';
   } else {
     posY -= 20;
     img.style.top = posY + 'px';
+    makeBox(pos + 3, posY + (imgWidth/2), imgWidth);
   }
 }
 function JumpDown() {
@@ -82,12 +142,14 @@ function JumpDown() {
   focus = (focus + 1) % 2;
   directionY = checkPageBoundsYD(directionY, imgWidth, posY, pageHeight);
   img.src = pacArray[3][focus];
+  imgSrc = img.src;
   if (directionY) {
     posY += 0;
     img.style.top = posY + 'px';
   } else {
     posY += 20;
     img.style.top = posY + 'px';
+    makeBox(pos + 3, posY - (imgWidth/2) , imgWidth);
   }
 }
 function allClear(){
@@ -98,21 +160,24 @@ function allClear(){
 }
 function moveDirection(evnt){
   switch (evnt.keyCode) {
+    case 32:
+      allClear();
+      break;
     case 37:
       allClear();
-      intervalLeft = setInterval(RunLeft, 200)
+      intervalLeft = setInterval(RunLeft, 100)
       break;
     case 39:
       allClear();
-      intervalRight = setInterval(RunRight, 200);
+      intervalRight = setInterval(RunRight, 100);
       break;
     case 38:
       allClear();
-      intervalUp = setInterval(JumpUp, 200);
+      intervalUp = setInterval(JumpUp, 100);
       break;
     case 40:
       allClear();
-      intervalDown = setInterval(JumpDown, 200);
+      intervalDown = setInterval(JumpDown, 100);
       break;
     }
 }
@@ -171,8 +236,15 @@ function makeBall(xcoord, ycoord, color) {
   ball.style.top = ycoord; 
   ball.style.left = xcoord;
   document.body.appendChild(ball);
-
-
+}
+function makeBox(xcoord, ycoord, size){
+  box = document.createElement('div')
+  box.style.backgroundColor = 'white';
+  box.className = `box`;
+  box.style.height = box.style.width = (size - 3);
+  box.style.top = ycoord;
+  box.style.left = xcoord;
+  document.body.appendChild(box);
 }
 function getRandom(scale) {
   return Math.floor(Math.random() * scale + 1);
@@ -180,6 +252,7 @@ function getRandom(scale) {
 function factory(total) {
   // check how make balls exist already and add to the array
   //make random color and push to array colors[]
+  getPoints();
   for(let i =0; i<total; i++){
   color = `rgb(${getRandom(256)},${getRandom(256)},${getRandom(256)})`;
   colors.push(color);
@@ -187,7 +260,7 @@ function factory(total) {
    // Everything below was provided to me
   for (let i = 0; i < total; i++) {
     size = 10;
-    makeBall(getRandom(pageWidth-100) + 25, getRandom(pageHeight-100) + 25, colors[i]);
+    makeBall(cirPosX[getRandom(100)], cirPosY[getRandom(100)], colors[i]);
     let newBall = []; 
     newBall.push(parseInt(ball.style.left));
     newBall.push(parseInt(ball.style.top));
@@ -210,6 +283,8 @@ function setPoints(){
   for (let i = 0; i<downBalls.length; i++){
     downBalls.pop();
   }
+  ghostVelX += getRandom(10);
+  ghostVelY += getRandom(10);
  document.body.innerHTML = `<div id = 'scoreBoard'>
     <ul>
       <li><div>Points Left: ${upBalls.length}</div></li>
@@ -217,11 +292,13 @@ function setPoints(){
       <li><div>Time until Refresh: </div></li>
     </ul>
   </div>
-  <img id="PacMan" src="images/PacMan1.png" width='50' style="position:absolute; left:${pos}; top:${posY}"> </img>`;
+  <img id="PacMan" src= "images/PacMan1.png" width='50' style="position:absolute; left:${pos}; top:${posY}"> </img>
+  <img id="Ghost" src="images/Ghost.png" width='50' style="position:absolute; left:${ghostX}; top:${ghostY}"> </img>`;
+  ghostMove();
   factory(getRandom(100));
 }
 factory(getRandom(100));
+ghostMove();
 setInterval(setPoints, 30000);
 
-//Please do not change
-module.exports = checkPageBounds;
+
