@@ -5,18 +5,18 @@
     <link rel="stylesheet" type="text/css" href="style.css" />  
   
 </head>
-<body>
+<div id = 'gameArea'>
     <div id = 'scoreBoard'>
          <ul>
-           <li><div>Points Left: </div></li>
-           <li><div>Score: </div></li>
-           <li><div>Time until Refresh: </div></li>
+           <li><div id = 'pointsLeft'>Points Left: </div></li>
+           <li><div id = 'score'>Score: </div></li>
+           <li><div id = 'timeRefresh'>Time until Refresh: </div></li>
         </ul>
     </div>
+    <div id = 'gameOver'></div>
     <img id="PacMan" src="images/PacMan1.png" width='50' style="position:absolute"> </img>
-    <img id="Ghost" src="images/Ghost.png" width='50' style="position:absolute; left:90%; top:90%"> </img>
-
+    <img id="Ghost" src="images/Ghost.png" width='50' style="position:absolute; left:1000px; top:700px"> </img>
     <script src="./pacman.js"></script> 
-</body>
+</div>
 
 </html>

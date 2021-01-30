@@ -1,8 +1,5 @@
-// pos is the PacMan image position variable- it is set to 0 initially
-
 let pos = 0;
 let posY = 0;
-//pageWidth is the width of the webpage. This is later used to calculate when Pac-Man needs to turn around. 
 let pageWidth = window.innerWidth;
 let pageHeight = window.innerHeight;
 const upBalls = [];
@@ -14,20 +11,19 @@ let ghostX = pageWidth - 50;
 let ghostY = pageHeight - 50;
 var ghostVelX = getRandom(10);
 var ghostVelY = getRandom(10);
-var cirPosX = [];
-var cirPosY = [];
+const cirPosX = [];
+const cirPosY = [];
+let img = document.getElementById('PacMan');
+let imgWidth = img.width;
+let gameIsOver = 0;
+let pointCounter = 0;
 
-//This array contains all the PacMan movement images
 const pacArray = [
   ['./images/PacMan1.png', './images/PacMan2.png'],
   ['./images/PacMan3.png', './images/PacMan4.png'],
   ['./images/PacMan5.png', './images/PacMan6.png'],
   ['./images/PacMan7.png', './images/PacMan8.png']
 ];
-
-// this variable defines what direction should PacMan go into:
-// 0 = left to right
-// 1 = right to left (reverse)
 var direction = 0;
 var directionY = 0;
 
@@ -35,8 +31,6 @@ var intervalRight;
 var intervalUp;
 var intervalLeft;
 var intervalDown;
-
-// This variable helps determine which PacMan image should be displayed. It flips between values 0 and 1
 var focus = 0;
 
 function checkWalls() {
@@ -65,7 +59,9 @@ function ghostMove(){{
   ghost.style.left = ghostX + 'px';
   ghost.style.top = ghostY + 'px';
 }
-  setTimeout(ghostMove, 100);
+  setTimeout(function(){
+    ghostMove();
+    ghostCheck()}, 100);
 }
 function makeGhost(ghostX, ghostY , ghostVelX, ghostVelY){
   ghost = document.createElement('img');
@@ -75,9 +71,91 @@ function makeGhost(ghostX, ghostY , ghostVelX, ghostVelY){
 
   ghost.style.top = ghostX + ghostVelX;
   ghost.style.left = ghostY + ghostVelY;
-  document.body.appendChild(ghost);
+  document.getElementById('gameArea').appendChild(ghost);
 }
-
+function ghostCheck(){
+  let pacPosX = pos + (imgWidth/2);
+  let pacPosY = posY + (imgWidth/2);
+  let ghostPosX = ghostX + (imgWidth/2);
+  let ghostPosY = ghostY + (imgWidth/2);
+  let x2 = Math.abs(pacPosX - ghostPosX)**2;
+  let y2 = Math.abs(pacPosY - ghostPosY)**2;
+  let distanceBtwn = Math.sqrt(x2 + y2);
+  if (distanceBtwn < imgWidth){
+    alert('Game Over! Start again?');
+    gameOver();
+  } 
+}
+function upCircleCheck(){
+  let upLength = upBalls.length;
+  for(let i = 0; i < upLength; i++){
+    let cirX = upBalls[i][0];
+    let cirY = upBalls[i][1];
+    let pacPosX = pos + (imgWidth/2);
+    let pacPosY = posY + (imgWidth/2);
+    let x2 = Math.abs(pacPosX - cirX)**2;
+    let y2 = Math.abs(pacPosY - cirY)**2;
+    let distanceBtwn = Math.sqrt(x2 + y2);
+    if (distanceBtwn < (imgWidth/2)){
+      pointCounter += 1;
+      imgWidth += 1;
+      document.getElementById('PacMan').style.width = `${imgWidth}`;
+      document.getElementById('score').innerHTML = `Score: ${pointCounter}`;
+      upBalls.splice(i,1);
+      i -= 1;
+      upLength -= 1;
+      document.getElementById('pointsLeft').innerHTML = `Points Left: ${upBalls.length + downBalls.length}`; 
+    }
+  }
+}
+function downCircleCheck(){
+  let downLength = downBalls.length;
+  for(let i = 0; i < downLength; i++){
+    let cirX = downBalls[i][0];
+    let cirY = downBalls[i][1];
+    let pacPosX = pos + (imgWidth/2);
+    let pacPosY = posY + (imgWidth/2);
+    let x2 = Math.abs(pacPosX - cirX)**2;
+    let y2 = Math.abs(pacPosY - cirY)**2;
+    let distanceBtwn = Math.sqrt(x2 + y2);
+    if (distanceBtwn < (imgWidth/2)){
+      pointCounter += 1;
+      imgWidth -= 5;
+      document.getElementById('PacMan').style.width = `${imgWidth}`;
+      document.getElementById('score').innerHTML = `Score: ${pointCounter}`;
+      downBalls.splice(i,1);
+      i -= 1;
+      downLength -= 1;
+      document.getElementById('pointsLeft').innerHTML = `Points Left: ${downBalls.length + upBalls.length}`; 
+    }
+  }
+}
+function displayGO(){
+  let displayBox = document.getElementById('gameOver');
+  let text = document.createTextNode("Game Over!");
+  displayBox.appendChild(text)
+ }
+function gameOver(){
+  document.location.reload();
+  ghostX = 1000;
+  ghostY = 700;
+  startOver(); 
+}
+ function startOver(){
+   document.getElementById('gameArea').innerHTML = `<div id = 'scoreBoard'>
+  <ul>
+  <li><div id = 'pointsLeft'>Points Left: ${upBalls.length} </div></li>
+  <li><div id = 'score'>Score: ${pointCounter} </div></li>
+  <li><div id = 'timeRefresh'>Time until Refresh: </div></li>
+  </ul>
+</div>
+<div id = 'gameOver'></div>
+<img id="PacMan" src= "images/PacMan1.png" width='${imgWidth}' style="position:absolute" </img>
+<img id="Ghost" src="images/Ghost.png" width='50' style="position:absolute; left:1000px; top:700px"> </img>
+<script src="./pacman.js"></script> `;
+ghostMove();
+factory(getRandom(100));
+}
 function getPoints(){
   for(let i = 0; i < 100; i++){
     let pointX = (((pageWidth-100)/100) * i) + 50;
@@ -86,7 +164,6 @@ function getPoints(){
     cirPosY.push(pointY);
   }
 }
-// This function is called on mouse click. Every time it is called, it updates the PacMan image, position and direction on the screen.
 function RunRight() {
   let img = document.getElementById('PacMan');
   let imgWidth = img.width;
@@ -98,9 +175,11 @@ function RunRight() {
     pos += 0;
     img.style.left = pos + 'px';
   } else {
+    upCircleCheck();
+    downCircleCheck();
     pos += 20;
     img.style.left = pos + 'px';
-    makeBox(pos - (imgWidth/2) , posY + 3, imgWidth);
+    makeBox(pos - (imgWidth/2) , posY, imgWidth);
   }
 }
 function RunLeft() {
@@ -114,9 +193,11 @@ function RunLeft() {
     pos += 0;
     img.style.left = pos + 'px';
   } else {
+    upCircleCheck()
+    downCircleCheck();
     pos -= 20;
     img.style.left = pos + 'px';
-    makeBox(pos + (imgWidth/2), posY + 3, imgWidth);
+    makeBox(pos + (imgWidth/2), posY, imgWidth);
   }
 }
 
@@ -131,9 +212,11 @@ function JumpUp() {
     posY += 0;
     img.style.top = posY + 'px';
   } else {
+    upCircleCheck();
+    downCircleCheck();
     posY -= 20;
     img.style.top = posY + 'px';
-    makeBox(pos + 3, posY + (imgWidth/2), imgWidth);
+    makeBox(pos, posY + (imgWidth/2), imgWidth);
   }
 }
 function JumpDown() {
@@ -147,9 +230,11 @@ function JumpDown() {
     posY += 0;
     img.style.top = posY + 'px';
   } else {
+    upCircleCheck();
+    downCircleCheck();
     posY += 20;
     img.style.top = posY + 'px';
-    makeBox(pos + 3, posY - (imgWidth/2) , imgWidth);
+    makeBox(pos, posY - (imgWidth/2) , imgWidth);
   }
 }
 function allClear(){
@@ -183,13 +268,8 @@ function moveDirection(evnt){
 }
 
   document.addEventListener('keydown', moveDirection);
-
-// TODO: Add a setInterval call to run every 200 milliseconds. Note: in the video, Dr. Williams uses setTimeout, but here we are going to use a slightly different
-//function call of setInterval, so that you can have practice using this function call. This will also have us add a couple of extra arguments, pos (position), which was declared 
-//on line 2, and pageWidth, which is declared on line 4. 
- // This function determines the direction of PacMan based on screen edge detection. 
+ 
 function checkPageBounds(direction, imgWidth, pos, pageWidth) {
-  // TODO: Complete this to reverse direction upon hitting screen edge
   if (pos + imgWidth >= pageWidth){
    direction = 1;
 
@@ -199,7 +279,6 @@ function checkPageBounds(direction, imgWidth, pos, pageWidth) {
   return direction;
 }
 function checkPageBoundsL(direction, imgWidth, pos, pageWidth) {
-  // TODO: Complete this to reverse direction upon hitting screen edge
   if (pos + imgWidth >= pageWidth){
    direction = 0;
 
@@ -209,7 +288,6 @@ function checkPageBoundsL(direction, imgWidth, pos, pageWidth) {
   return direction;
 }
 function checkPageBoundsY(directionY, imgWidth, posY, pageHeight) {
-  // TODO: Complete this to reverse direction upon hitting screen edge
   if (posY + imgWidth >= pageHeight){
    directionY = 0;
 
@@ -219,7 +297,6 @@ function checkPageBoundsY(directionY, imgWidth, posY, pageHeight) {
   return directionY;
 }
 function checkPageBoundsYD(directionY, imgWidth, posY, pageHeight) {
-  // TODO: Complete this to reverse direction upon hitting screen edge
   if (posY + imgWidth >= pageHeight){
    directionY = 1;
 
@@ -235,30 +312,27 @@ function makeBall(xcoord, ycoord, color) {
   ball.style.height = ball.style.width = size;
   ball.style.top = ycoord; 
   ball.style.left = xcoord;
-  document.body.appendChild(ball);
+  document.getElementById('gameArea').appendChild(ball);
 }
 function makeBox(xcoord, ycoord, size){
   box = document.createElement('div')
   box.style.backgroundColor = 'white';
   box.className = `box`;
-  box.style.height = box.style.width = (size - 3);
+  box.style.height = box.style.width = size;
   box.style.top = ycoord;
   box.style.left = xcoord;
-  document.body.appendChild(box);
+  document.getElementById('gameArea').appendChild(box);
 }
 function getRandom(scale) {
   return Math.floor(Math.random() * scale + 1);
 }
 function factory(total) {
-  // check how make balls exist already and add to the array
-  //make random color and push to array colors[]
   getPoints();
   for(let i =0; i<total; i++){
   color = `rgb(${getRandom(256)},${getRandom(256)},${getRandom(256)})`;
   colors.push(color);
   }
-   // Everything below was provided to me
-  for (let i = 0; i < total; i++) {
+  for(let i = 0; i < total; i++) {
     size = 10;
     makeBall(cirPosX[getRandom(100)], cirPosY[getRandom(100)], colors[i]);
     let newBall = []; 
@@ -266,7 +340,7 @@ function factory(total) {
     newBall.push(parseInt(ball.style.top));
     upBalls.push(newBall);
   }
-  for (let i = 0; i < total / 10; i++){
+  for(let i = 0; i < total / 10; i++){
     size = 20;
     downBall =makeBall(getRandom(pageWidth -100) + 25, getRandom(pageHeight -100) + 25, 'black');
     let newBall = []; 
@@ -283,22 +357,28 @@ function setPoints(){
   for (let i = 0; i<downBalls.length; i++){
     downBalls.pop();
   }
-  ghostVelX += getRandom(10);
-  ghostVelY += getRandom(10);
- document.body.innerHTML = `<div id = 'scoreBoard'>
+  ghostVelX += getRandom(7);
+  ghostVelY += getRandom(7);
+ document.getElementById('gameArea').innerHTML = `<div id = 'scoreBoard'>
     <ul>
-      <li><div>Points Left: ${upBalls.length}</div></li>
-      <li><div>Score: </div></li>
-      <li><div>Time until Refresh: </div></li>
+    <li><div id = 'pointsLeft'>Points Left: ${upBalls.length} </div></li>
+    <li><div id = 'score'>Score: ${pointCounter} </div></li>
+    <li><div id = 'timeRefresh'>Time until Refresh: </div></li>
     </ul>
   </div>
-  <img id="PacMan" src= "images/PacMan1.png" width='50' style="position:absolute; left:${pos}; top:${posY}"> </img>
-  <img id="Ghost" src="images/Ghost.png" width='50' style="position:absolute; left:${ghostX}; top:${ghostY}"> </img>`;
+  <div id = 'gameOver'></div>
+  <img id="PacMan" src= "images/PacMan1.png" width='${imgWidth}' style="position:absolute; left:${pos}; top:${posY}"> </img>
+  <img id="Ghost" src="images/Ghost.png" width='50' style="position:absolute; left:${ghostX}; top:${ghostY}"> </img>
+  <script src="./pacman.js"></script> `;
   ghostMove();
   factory(getRandom(100));
 }
-factory(getRandom(100));
-ghostMove();
-setInterval(setPoints, 30000);
+function game(){
+  ghostMove();
+  setInterval(setPoints, 30000);
+  }
+game();
+startOver();
+
 
 

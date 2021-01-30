@@ -24,7 +24,7 @@ li div {
     text-decoration: none;
     border: 2px solid white;
   }
-body {
+#gameArea {
     display: flex;                  
 }
 .ball { 
